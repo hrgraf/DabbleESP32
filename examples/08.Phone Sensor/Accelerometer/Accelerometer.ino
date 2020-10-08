@@ -11,25 +11,33 @@
 #include <DabbleESP32.h>
 
 
-void setup() {
+void setup() 
+{
   Serial.begin(115200);    // make sure your Serial Monitor is also set at this baud rate.
+  Serial.println("Dabble Phone Accelerometer Demo");
+
   Dabble.begin("MyEsp32");   //set bluetooth name of your device
+
+  Serial.println("Wait for Dabble app connection");
+  Dabble.waitForAppConnection();
+  Serial.println("Connected!");
 }
 
-void loop() {
+void loop() 
+{
   Dabble.processInput();             //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
   print_Accelerometer_data();
 }
 
 void print_Accelerometer_data()
 {
-  Serial.print("X_axis: ");
+  Serial.print("X: ");
   Serial.print(Sensor.getAccelerometerXaxis(), 4);
-  Serial.print('\t');
-  Serial.print("Y_axis: ");
+  Serial.print(", ");
+  Serial.print("Y: ");
   Serial.print(Sensor.getAccelerometerYaxis(), 4);
-  Serial.print('\t');
-  Serial.print("Z_axis: ");
-  Serial.println(Sensor.getAccelerometerZaxis(), 4);
+  Serial.print(", ");
+  Serial.print("Z: ");
+  Serial.print(Sensor.getAccelerometerZaxis(), 4);
   Serial.println();
 }

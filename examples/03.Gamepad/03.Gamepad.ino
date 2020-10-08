@@ -9,15 +9,45 @@
 #define CUSTOM_SETTINGS
 #define INCLUDE_GAMEPAD_MODULE
 #include <DabbleESP32.h>
-void setup() {
+
+void setup() 
+{
   // put your setup code here, to run once:
   Serial.begin(115200);      // make sure your Serial Monitor is also set at this baud rate.
+  Serial.println("Dabble Gamepad Demo");
+
   Dabble.begin("MyEsp32");       //set bluetooth name of your device
+
+  Serial.println("Wait for Dabble app connection");
+  Dabble.waitForAppConnection();
+  Serial.println("Connected!");
 }
 
-void loop() {
+void loop() 
+{
   Dabble.processInput();             //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
-  Serial.print("KeyPressed: ");
+  if (! Dabble.isAppConnected())
+  {
+    Serial.println("Not connected");
+    Dabble.delay(4000);
+    return;
+  }
+
+  byte scr = Dabble.getScreenId();
+  byte mod = Dabble.readModuleId();
+  Serial.print("Module: ");
+  Serial.print(mod);
+  Serial.print(", Screen: ");
+  Serial.print(scr);
+
+  if (mod != GAMEPAD_ID)
+  {
+    Serial.println(", not Gamepad\n");
+    Dabble.delay(4000);
+    return;
+  }
+
+  Serial.print(", Pressed: ");
   if (GamePad.isUpPressed())
   {
     Serial.print("Up");
@@ -67,22 +97,24 @@ void loop() {
   {
     Serial.print("Select");
   }
-  Serial.print('\t');
+  Serial.print(", ");
 
   int a = GamePad.getAngle();
   Serial.print("Angle: ");
   Serial.print(a);
-  Serial.print('\t');
+  Serial.print(", ");
   int b = GamePad.getRadius();
   Serial.print("Radius: ");
   Serial.print(b);
-  Serial.print('\t');
+  Serial.print(", ");
   float c = GamePad.getXaxisData();
-  Serial.print("x_axis: ");
+  Serial.print("X: ");
   Serial.print(c);
-  Serial.print('\t');
+  Serial.print(", ");
   float d = GamePad.getYaxisData();
-  Serial.print("y_axis: ");
+  Serial.print("Y: ");
   Serial.println(d);
-  Serial.println();
+  //Serial.println();
+
+  Dabble.delay(1000); // ms
 }

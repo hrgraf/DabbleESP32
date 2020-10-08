@@ -1,0 +1,14 @@
+{
+	"folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "examples\\03.Gamepad"
+        },
+        {
+            "path": "examples\\08.Phone Sensor\\Accelerometer"
+        }
+    ],
+    "settings": {}
+}
