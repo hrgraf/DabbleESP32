@@ -10,6 +10,11 @@
 #define INCLUDE_GAMEPAD_MODULE
 #include <DabbleESP32.h>
 
+static bool logging = true;
+static long last_ms = 0;
+static int num_run = 0, num_updates = 0;
+static float last_x = 0, last_y = 0;
+
 void setup() 
 {
   // put your setup code here, to run once:
@@ -21,100 +26,127 @@ void setup()
   Serial.println("Wait for Dabble app connection");
   Dabble.waitForAppConnection();
   Serial.println("Connected!");
+
+  last_ms = millis();
 }
 
 void loop() 
 {
-  Dabble.processInput();             //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
+  Dabble.processInput();
   if (! Dabble.isAppConnected())
   {
     Serial.println("Not connected");
     Dabble.delay(4000);
+    last_ms = millis();
     return;
   }
 
   byte scr = Dabble.getScreenId();
   byte mod = Dabble.readModuleId();
-  Serial.print("Module: ");
-  Serial.print(mod);
-  Serial.print(", Screen: ");
-  Serial.print(scr);
+
+  if (logging)
+  {
+    Serial.print("Module: ");
+    Serial.print(mod);
+    Serial.print(", Screen: ");
+    Serial.print(scr);
+  }
 
   if (mod != GAMEPAD_ID)
   {
     Serial.println(", not Gamepad\n");
     Dabble.delay(4000);
+    last_ms = millis();
     return;
   }
 
-  Serial.print(", Pressed: ");
-  if (GamePad.isUpPressed())
+  num_run++;
+
+  int   a = GamePad.getAngle();
+  int   r = GamePad.getRadius();
+  float x = GamePad.getXaxisData();
+  float y = GamePad.getYaxisData();
+
+  if ((x != last_x) || (y != last_y))
+    num_updates++;
+
+  if (logging)
   {
-    Serial.print("Up");
-  }
+      Serial.print(", Pressed: ");
+      if (GamePad.isUpPressed())
+      {
+        Serial.print("Up");
+      }
 
-  if (GamePad.isDownPressed())
+      if (GamePad.isDownPressed())
+      {
+        Serial.print("Down");
+      }
+
+      if (GamePad.isLeftPressed())
+      {
+        Serial.print("Left");
+      }
+
+      if (GamePad.isRightPressed())
+      {
+        Serial.print("Right");
+      }
+
+      if (GamePad.isSquarePressed())
+      {
+        Serial.print("Square");
+      }
+
+      if (GamePad.isCirclePressed())
+      {
+        Serial.print("Circle");
+      }
+
+      if (GamePad.isCrossPressed())
+      {
+        Serial.print("Cross");
+      }
+
+      if (GamePad.isTrianglePressed())
+      {
+        Serial.print("Triangle");
+      }
+
+      if (GamePad.isStartPressed())
+      {
+        Serial.print("Start");
+      }
+
+      if (GamePad.isSelectPressed())
+      {
+        Serial.print("Select");
+      }
+
+      Serial.print(", Angle: ");
+      Serial.print(a);
+      Serial.print(", Radius: ");
+      Serial.print(r);
+      Serial.print(", X: ");
+      Serial.print(x);
+      Serial.print(", Y: ");
+      Serial.print(y);
+
+      Serial.println();
+
+      Dabble.delay(1000); // ms
+  }
+  else
   {
-    Serial.print("Down");
+    long ms = millis();
+    if (ms - last_ms >= 1000)
+    {
+        Serial.printf("Run %d times per second with %d updates\n", num_run, num_updates);
+        num_run = num_updates = 0;
+        last_ms += 1000;
+    }
   }
-
-  if (GamePad.isLeftPressed())
-  {
-    Serial.print("Left");
-  }
-
-  if (GamePad.isRightPressed())
-  {
-    Serial.print("Right");
-  }
-
-  if (GamePad.isSquarePressed())
-  {
-    Serial.print("Square");
-  }
-
-  if (GamePad.isCirclePressed())
-  {
-    Serial.print("Circle");
-  }
-
-  if (GamePad.isCrossPressed())
-  {
-    Serial.print("Cross");
-  }
-
-  if (GamePad.isTrianglePressed())
-  {
-    Serial.print("Triangle");
-  }
-
-  if (GamePad.isStartPressed())
-  {
-    Serial.print("Start");
-  }
-
-  if (GamePad.isSelectPressed())
-  {
-    Serial.print("Select");
-  }
-  Serial.print(", ");
-
-  int a = GamePad.getAngle();
-  Serial.print("Angle: ");
-  Serial.print(a);
-  Serial.print(", ");
-  int b = GamePad.getRadius();
-  Serial.print("Radius: ");
-  Serial.print(b);
-  Serial.print(", ");
-  float c = GamePad.getXaxisData();
-  Serial.print("X: ");
-  Serial.print(c);
-  Serial.print(", ");
-  float d = GamePad.getYaxisData();
-  Serial.print("Y: ");
-  Serial.println(d);
-  //Serial.println();
-
-  Dabble.delay(1000); // ms
+  
+  last_x = x;
+  last_y = y;
 }
